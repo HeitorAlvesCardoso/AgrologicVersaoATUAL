@@ -1,4 +1,5 @@
 from models.boi_model import Boi
+from services.calcular_valor_boi_service import CalcularValorBoiService
 
 
 class CriarBoiService:
@@ -12,13 +13,8 @@ class CriarBoiService:
         peso_kg = float(dados["peso_kg"])
         valor_arroba = float(dados["valor_arroba"])
 
-        if peso_kg <= 0:
-            raise ValueError("O peso do boi deve ser maior que zero.")
-
-        if valor_arroba <= 0:
-            raise ValueError("O valor da arroba deve ser maior que zero.")
-
-        preco_estimado = Boi.calcular_preco(peso_kg, valor_arroba)
+        calculo = CalcularValorBoiService()
+        preco_estimado = calculo.executar(peso_kg, valor_arroba)
 
         boi = Boi(
             raca=dados["raca"],

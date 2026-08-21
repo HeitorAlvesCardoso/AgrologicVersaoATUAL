@@ -1,8 +1,5 @@
 from .database import db
 
-# Peso padrão da arroba utilizado no mercado de gado (em kg).
-PESO_ARROBA_KG = 15
-
 
 class Boi(db.Model):
     __tablename__ = "bois"
@@ -16,13 +13,16 @@ class Boi(db.Model):
     preco_estimado = db.Column(db.Float, nullable=False)
     data_avaliacao = db.Column(db.DateTime, server_default=db.func.now())
 
+    # ── CRUD básico (somente persistência, sem regra de negócio) ──
+
     def salvar(self):
         """CREATE: salva um novo boi no banco."""
         db.session.add(self)
         db.session.commit()
 
-    def atualizar(self, raca=None, categoria=None, peso_kg=None, idade_meses=None, valor_arroba=None):
-        """UPDATE: altera apenas os campos informados e recalcula o preço estimado."""
+    def atualizar(self, raca=None, categoria=None, peso_kg=None,
+                  idade_meses=None, valor_arroba=None, preco_estimado=None):
+        """UPDATE: altera apenas os campos informados."""
         if raca is not None:
             self.raca = raca
         if categoria is not None:
@@ -33,8 +33,8 @@ class Boi(db.Model):
             self.idade_meses = idade_meses
         if valor_arroba is not None:
             self.valor_arroba = valor_arroba
-
-        self.preco_estimado = Boi.calcular_preco(self.peso_kg, self.valor_arroba)
+        if preco_estimado is not None:
+            self.preco_estimado = preco_estimado
 
         db.session.commit()
 
@@ -49,15 +49,9 @@ class Boi(db.Model):
         return Boi.query.order_by(Boi.id.asc()).all()
 
     @staticmethod
-    def buscar_por_id(id):
+    def buscar_por_id(boi_id):
         """READ: busca um boi pelo id."""
-        return Boi.query.get(id)
-
-    @staticmethod
-    def calcular_preco(peso_kg, valor_arroba):
-        """Calcula o preço estimado do boi com base no peso e no valor da arroba na praça."""
-        peso_arroba = peso_kg / PESO_ARROBA_KG
-        return round(peso_arroba * valor_arroba, 2)
+        return Boi.query.get(boi_id)
 
     def to_dict(self):
         """Converte o objeto Boi para dicionário/JSON."""

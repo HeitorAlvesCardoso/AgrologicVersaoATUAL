@@ -1,4 +1,5 @@
 from models.boi_model import Boi
+from services.calcular_valor_boi_service import CalcularValorBoiService
 
 
 class AtualizarBoiService:
@@ -8,20 +9,19 @@ class AtualizarBoiService:
         if boi is None:
             return None
 
-        peso_kg = dados.get("peso_kg")
-        if peso_kg is not None and float(peso_kg) <= 0:
-            raise ValueError("O peso do boi deve ser maior que zero.")
+        peso_kg = dados.get("peso_kg", boi.peso_kg)
+        valor_arroba = dados.get("valor_arroba", boi.valor_arroba)
 
-        valor_arroba = dados.get("valor_arroba")
-        if valor_arroba is not None and float(valor_arroba) <= 0:
-            raise ValueError("O valor da arroba deve ser maior que zero.")
+        calculo = CalcularValorBoiService()
+        preco_estimado = calculo.executar(float(peso_kg), float(valor_arroba))
 
         boi.atualizar(
             raca=dados.get("raca"),
             categoria=dados.get("categoria"),
-            peso_kg=peso_kg,
+            peso_kg=dados.get("peso_kg"),
             idade_meses=dados.get("idade_meses"),
-            valor_arroba=valor_arroba,
+            valor_arroba=dados.get("valor_arroba"),
+            preco_estimado=preco_estimado,
         )
 
         return boi.to_dict()

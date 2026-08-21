@@ -6,37 +6,43 @@ from models.boi_model import Boi
 class BoiRepository:
     """Repository para consultas especiais que vão além do CRUD básico.
 
-    Utilizado para filtros específicos, relatórios e consultas complexas,
+    Utilizado para filtros, relatórios e consultas complexas,
     conforme a arquitetura definida no projeto.
     """
 
-    @staticmethod
-    def filtrar(raca=None, categoria=None, peso_min=None, peso_max=None):
-        """Filtra avaliações com base em um ou mais critérios.
+    # ── Filtros individuais ──
 
-        Pode filtrar por raça, categoria e/ou faixa de peso.
-        Parâmetros None ou vazios são ignorados.
-        """
+    @staticmethod
+    def filtrar_por_raca(raca):
+        """Filtra avaliações por raça do boi (busca parcial)."""
+        return Boi.query.filter(
+            Boi.raca.ilike(f"%{raca}%")
+        ).order_by(Boi.id.asc()).all()
+
+    @staticmethod
+    def filtrar_por_categoria(categoria):
+        """Filtra avaliações por categoria (busca parcial)."""
+        return Boi.query.filter(
+            Boi.categoria.ilike(f"%{categoria}%")
+        ).order_by(Boi.id.asc()).all()
+
+    @staticmethod
+    def filtrar_por_faixa_de_peso(peso_min=None, peso_max=None):
+        """Filtra avaliações por faixa de peso (em kg)."""
         query = Boi.query
 
-        if raca:
-            query = query.filter(Boi.raca.ilike(f"%{raca}%"))
-        if categoria:
-            query = query.filter(Boi.categoria.ilike(f"%{categoria}%"))
         if peso_min is not None:
             query = query.filter(Boi.peso_kg >= peso_min)
         if peso_max is not None:
             query = query.filter(Boi.peso_kg <= peso_max)
 
-        return query.order_by(Boi.id.asc()).all()
+        return query.order_by(Boi.peso_kg.asc()).all()
+
+    # ── Relatórios ──
 
     @staticmethod
     def gerar_resumo():
-        """Gera um resumo geral de todas as avaliações cadastradas.
-
-        Retorna total de avaliações, peso médio, valor médio da arroba,
-        preço médio estimado, menor e maior preço, e totais por categoria/raça.
-        """
+        """Gera um resumo geral de todas as avaliações cadastradas."""
         resultado = db.session.query(
             func.count(Boi.id).label("total_avaliacoes"),
             func.avg(Boi.peso_kg).label("peso_medio"),

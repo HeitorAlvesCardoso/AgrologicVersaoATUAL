@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from models.database import db
-from controllers.boi_controller import boi_controller
+from controllers.boi_controller import BoiController
 
 
 def create_app():
@@ -18,26 +18,29 @@ def create_app():
 
     db.init_app(app)
 
-    app.register_blueprint(boi_controller)
+    # Registra a Controller (classe)
+    boi_controller = BoiController()
+    app.register_blueprint(boi_controller.blueprint)
 
     @app.get("/")
     def home():
         return jsonify({
             "mensagem": "API AgroLogic funcionando.",
             "rotas": {
+                "calcular_valor_boi": "POST /bois/calcular",
+                "criar_boi": "POST /bois",
                 "listar_bois": "GET /bois",
                 "buscar_boi": "GET /bois/<id>",
-                "criar_boi": "POST /bois",
                 "atualizar_boi": "PUT /bois/<id>",
                 "deletar_boi": "DELETE /bois/<id>",
-                "filtrar_bois": "GET /bois/filtrar?raca=...&categoria=...&peso_min=...&peso_max=...",
+                "filtrar_por_raca": "GET /bois/filtrar/raca?raca=...",
+                "filtrar_por_categoria": "GET /bois/filtrar/categoria?categoria=...",
+                "filtrar_por_peso": "GET /bois/filtrar/peso?peso_min=...&peso_max=...",
                 "gerar_resumo": "GET /bois/resumo",
             }
         })
 
     with app.app_context():
-        # Cria as tabelas automaticamente para facilitar os testes.
-        # Em produção, o ideal é usar migrations.
         db.create_all()
 
     return app

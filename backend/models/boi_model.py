@@ -5,6 +5,7 @@ class Boi(db.Model):
     __tablename__ = "bois"
 
     id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=True)
     raca = db.Column(db.String(100), nullable=False)
     categoria = db.Column(db.String(50), nullable=False)
     peso_kg = db.Column(db.Float, nullable=False)
@@ -20,9 +21,11 @@ class Boi(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def atualizar(self, raca=None, categoria=None, peso_kg=None,
+    def atualizar(self, nome=None, raca=None, categoria=None, peso_kg=None,
                   idade_meses=None, valor_arroba=None, preco_estimado=None):
         """UPDATE: altera apenas os campos informados."""
+        if nome is not None:
+            self.nome = nome
         if raca is not None:
             self.raca = raca
         if categoria is not None:
@@ -57,6 +60,7 @@ class Boi(db.Model):
         """Converte o objeto Boi para dicionário/JSON."""
         return {
             "id": self.id,
+            "nome": self.nome,
             "raca": self.raca,
             "categoria": self.categoria,
             "peso_kg": self.peso_kg,

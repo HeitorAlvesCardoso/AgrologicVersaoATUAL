@@ -16,6 +16,7 @@ class AtualizarBoiService:
         preco_estimado = calculo.executar(float(peso_kg), float(valor_arroba))
 
         boi.atualizar(
+            nome=dados.get("nome"),
             raca=dados.get("raca"),
             categoria=dados.get("categoria"),
             peso_kg=dados.get("peso_kg"),

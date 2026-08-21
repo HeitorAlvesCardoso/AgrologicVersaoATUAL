@@ -17,6 +17,7 @@ class CriarBoiService:
         preco_estimado = calculo.executar(peso_kg, valor_arroba)
 
         boi = Boi(
+            nome=dados.get("nome"),
             raca=dados["raca"],
             categoria=dados["categoria"],
             peso_kg=peso_kg,

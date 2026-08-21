@@ -15,17 +15,22 @@ AgroLogic1/
     ├── .env.example
     ├── controllers/
     │   └── boi_controller.py
-    ├── models/
-    │   ├── database.py
-    │   └── boi_model.py
-    ├── repositories/
-    │   └── README.md
     ├── services/
+    │   ├── calcular_valor_boi_service.py
     │   ├── criar_boi_service.py
     │   ├── listar_bois_service.py
     │   ├── buscar_boi_por_id_service.py
     │   ├── atualizar_boi_service.py
-    │   └── deletar_boi_service.py
+    │   ├── deletar_boi_service.py
+    │   ├── filtrar_por_raca_service.py
+    │   ├── filtrar_por_categoria_service.py
+    │   ├── filtrar_por_faixa_peso_service.py
+    │   └── gerar_resumo_service.py
+    ├── repositories/
+    │   └── boi_repository.py
+    ├── models/
+    │   ├── database.py
+    │   └── boi_model.py
     └── database/
         └── create_database.sql
 ```
@@ -33,18 +38,23 @@ AgroLogic1/
 ## Arquitetura usada
 
 ```text
-Frontend
+Frontend/API
    ↓
-Controller
+Controller (recebe requisição HTTP)
    ↓
-Service
+Service (regra de negócio)
    ↓
-Model
+Model (acesso ao banco - CRUD)
+Repository (consultas especiais)
    ↓
 Banco de Dados
 ```
 
-Cada camada tem uma responsabilidade única: o **Controller** recebe a requisição HTTP e devolve a resposta, o **Service** contém a regra de negócio de cada caso de uso, e a **Model** concentra o acesso ao banco (herdando de `db.Model`) e o cálculo de preço do boi.
+Cada camada tem uma responsabilidade única:
+- **Controller** recebe a requisição HTTP e devolve a resposta.
+- **Service** contém a regra de negócio de cada caso de uso (cálculo de preço, filtros, resumo).
+- **Model** concentra o CRUD básico (salvar, listar, buscar, atualizar, deletar).
+- **Repository** é usado para consultas especiais que vão além do CRUD simples (filtros, relatórios).
 
 ## Funcionalidades Implementadas
 
@@ -52,7 +62,7 @@ Cada camada tem uma responsabilidade única: o **Controller** recebe a requisiç
 2. **Cadastrar avaliação** – Salva uma nova avaliação de boi no banco de dados, com cálculo automático do preço.
 3. **Listar avaliações** – Exibe todas as avaliações de bois cadastradas no sistema.
 4. **Consultar avaliação** – Exibe os detalhes de uma avaliação específica pelo ID.
-5. **Editar avaliação** – Altera peso, raça, categoria, idade ou valor da arroba e recalcula o preço automaticamente.
+5. **Editar avaliação** – Altera nome, peso, raça, categoria, idade ou valor da arroba e recalcula o preço automaticamente.
 6. **Excluir avaliação** – Remove uma avaliação do banco de dados.
 7. **Filtrar por raça** – Encontra avaliações de determinada raça (busca parcial, case-insensitive).
 8. **Filtrar por categoria** – Filtra avaliações por categoria (ex: Boi Gordo, Novilho, Garrote).
@@ -107,6 +117,12 @@ Crie o arquivo `.env` com base no exemplo:
 cp .env.example .env
 ```
 
+Para usar MySQL, edite o `.env`:
+
+```text
+DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
+```
+
 Execute o backend:
 
 ```bash
@@ -143,21 +159,36 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
 
 | Método | Rota | Descrição |
 |---|---|---|
+| GET | `/` | Lista todas as rotas disponíveis |
+| POST | `/bois/calcular` | Calcula o preço estimado sem salvar |
+| POST | `/bois` | Cadastra um boi e calcula o preço estimado |
 | GET | `/bois` | Lista todos os bois cadastrados |
 | GET | `/bois/<id>` | Busca um boi pelo id |
-| POST | `/bois` | Cadastra um boi e calcula o preço estimado |
-| PUT | `/bois/<id>` | Atualiza um boi e recalcula o preço quando necessário |
+| PUT | `/bois/<id>` | Atualiza um boi e recalcula o preço |
 | DELETE | `/bois/<id>` | Remove um boi |
-| GET | `/bois/filtrar` | Filtra por raça, categoria e/ou faixa de peso |
+| GET | `/bois/filtrar/raca?raca=...` | Filtra por raça |
+| GET | `/bois/filtrar/categoria?categoria=...` | Filtra por categoria |
+| GET | `/bois/filtrar/peso?peso_min=...&peso_max=...` | Filtra por faixa de peso |
 | GET | `/bois/resumo` | Gera resumo estatístico das avaliações |
 
 ## Exemplos de Requisições
+
+### Calcular valor (sem salvar)
+
+```json
+POST /bois/calcular
+{
+  "peso_kg": 480,
+  "valor_arroba": 300.00
+}
+```
 
 ### Cadastrar avaliação
 
 ```json
 POST /bois
 {
+  "nome": "Boi 01",
   "raca": "Nelore",
   "categoria": "Boi Gordo",
   "peso_kg": 480,
@@ -169,25 +200,19 @@ POST /bois
 ### Filtrar por raça
 
 ```text
-GET /bois/filtrar?raca=Nelore
+GET /bois/filtrar/raca?raca=Nelore
 ```
 
 ### Filtrar por categoria
 
 ```text
-GET /bois/filtrar?categoria=Boi Gordo
+GET /bois/filtrar/categoria?categoria=Boi+Gordo
 ```
 
 ### Filtrar por faixa de peso
 
 ```text
-GET /bois/filtrar?peso_min=400&peso_max=500
-```
-
-### Filtrar combinando parâmetros
-
-```text
-GET /bois/filtrar?raca=Nelore&categoria=Boi Gordo&peso_min=400&peso_max=600
+GET /bois/filtrar/peso?peso_min=400&peso_max=500
 ```
 
 ### Gerar resumo
@@ -203,37 +228,34 @@ GET /bois/resumo
 ```json
 {
   "id": 1,
+  "nome": "Boi 01",
   "raca": "Nelore",
   "categoria": "Boi Gordo",
   "peso_kg": 480,
   "idade_meses": 36,
   "valor_arroba": 300.0,
   "preco_estimado": 9600.0,
-  "data_avaliacao": "2026-07-01T12:00:00"
+  "data_avaliacao": "2026-08-21T12:00:00"
 }
 ```
 
-### Filtrar bois
+### Filtrar por raça
 
 ```json
 {
-  "total": 2,
-  "filtros_aplicados": {
-    "raca": "Nelore",
-    "categoria": null,
-    "peso_min": null,
-    "peso_max": null
-  },
+  "total": 1,
+  "filtro": {"raca": "Nelore"},
   "resultados": [
     {
       "id": 1,
+      "nome": "Boi 01",
       "raca": "Nelore",
       "categoria": "Boi Gordo",
       "peso_kg": 480,
       "idade_meses": 36,
       "valor_arroba": 300.0,
       "preco_estimado": 9600.0,
-      "data_avaliacao": "2026-07-01T12:00:00"
+      "data_avaliacao": "2026-08-21T12:00:00"
     }
   ]
 }
@@ -271,4 +293,4 @@ GET /bois/resumo
 
 ## Status atual do projeto
 
-Esta etapa cobre apenas o backend: models, controllers, services e persistência no banco. A camada de frontend (telas de cadastro, listagem, edição e exclusão consumindo essas rotas) faz parte da próxima etapa do trabalho.
+Esta etapa cobre apenas o backend: models, controllers, services, repositories e persistência no banco. A camada de frontend (telas de cadastro, listagem, edição e exclusão consumindo essas rotas) faz parte da próxima etapa do trabalho.

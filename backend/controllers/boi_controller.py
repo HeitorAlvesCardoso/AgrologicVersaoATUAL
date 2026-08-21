@@ -72,20 +72,30 @@ class BoiController:
         @bp.get("/bois")
         def listar_bois():
             """Lista todos os bois cadastrados."""
-            service = ListarBoisService()
-            bois = service.executar()
-            return jsonify(bois), 200
+            try:
+                service = ListarBoisService()
+                bois = service.executar()
+                return jsonify(bois), 200
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao listar bois no banco de dados."}), 500
 
         @bp.get("/bois/<int:boi_id>")
         def buscar_boi_por_id(boi_id):
             """Busca um boi pelo ID."""
-            service = BuscarBoiPorIdService()
-            boi = service.executar(boi_id)
+            try:
+                service = BuscarBoiPorIdService()
+                boi = service.executar(boi_id)
 
-            if boi is None:
-                return jsonify({"erro": "Boi não encontrado."}), 404
+                if boi is None:
+                    return jsonify({"erro": "Boi não encontrado."}), 404
 
-            return jsonify(boi), 200
+                return jsonify(boi), 200
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao buscar boi no banco de dados."}), 500
 
         @bp.put("/bois/<int:boi_id>")
         def atualizar_boi(boi_id):

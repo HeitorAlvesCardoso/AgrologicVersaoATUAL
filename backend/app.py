@@ -30,6 +30,8 @@ def create_app():
                 "criar_boi": "POST /bois",
                 "atualizar_boi": "PUT /bois/<id>",
                 "deletar_boi": "DELETE /bois/<id>",
+                "filtrar_bois": "GET /bois/filtrar?raca=...&categoria=...&peso_min=...&peso_max=...",
+                "gerar_resumo": "GET /bois/resumo",
             }
         })
 

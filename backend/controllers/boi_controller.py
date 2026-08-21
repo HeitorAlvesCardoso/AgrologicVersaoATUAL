@@ -6,6 +6,8 @@ from services.listar_bois_service import ListarBoisService
 from services.buscar_boi_por_id_service import BuscarBoiPorIdService
 from services.atualizar_boi_service import AtualizarBoiService
 from services.deletar_boi_service import DeletarBoiService
+from services.filtrar_bois_service import FiltrarBoisService
+from services.gerar_resumo_service import GerarResumoService
 from models.database import db
 
 boi_controller = Blueprint("boi_controller", __name__)
@@ -79,3 +81,73 @@ def deletar_boi(boi_id):
     except SQLAlchemyError:
         db.session.rollback()
         return jsonify({"erro": "Erro ao deletar boi no banco de dados."}), 500
+
+
+# ── Rotas de Filtro ──────────────────────────────────────────────────────────
+
+
+@boi_controller.get("/bois/filtrar")
+def filtrar_bois():
+    """Filtra avaliações por raça, categoria e/ou faixa de peso.
+
+    Query params:
+        raca (str): Nome da raça (busca parcial).
+        categoria (str): Nome da categoria (busca parcial).
+        peso_min (float): Peso mínimo em kg.
+        peso_max (float): Peso máximo em kg.
+    """
+    try:
+        raca = request.args.get("raca")
+        categoria = request.args.get("categoria")
+        peso_min = request.args.get("peso_min", type=float)
+        peso_max = request.args.get("peso_max", type=float)
+
+        service = FiltrarBoisService()
+        bois = service.executar(
+            raca=raca,
+            categoria=categoria,
+            peso_min=peso_min,
+            peso_max=peso_max,
+        )
+
+        return jsonify({
+            "total": len(bois),
+            "filtros_aplicados": {
+                "raca": raca,
+                "categoria": categoria,
+                "peso_min": peso_min,
+                "peso_max": peso_max,
+            },
+            "resultados": bois,
+        }), 200
+
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
+
+    except Exception as erro:
+        return jsonify({"erro": f"Erro ao filtrar bois: {str(erro)}"}), 500
+
+
+# ── Rota de Resumo ───────────────────────────────────────────────────────────
+
+
+@boi_controller.get("/bois/resumo")
+def gerar_resumo():
+    """Gera um resumo estatístico de todas as avaliações.
+
+    Retorna total de avaliações, peso médio, valor médio da arroba,
+    preço médio estimado, menor e maior preço, e totais por categoria/raça.
+    """
+    try:
+        service = GerarResumoService()
+        resumo = service.executar()
+
+        return jsonify(resumo), 200
+
+    except SQLAlchemyError:
+        db.session.rollback()
+        return jsonify({"erro": "Erro ao gerar resumo no banco de dados."}), 500
+
+    except Exception as erro:
+        return jsonify({"erro": f"Erro ao gerar resumo: {str(erro)}"}), 500

@@ -46,15 +46,18 @@ Banco de Dados
 
 Cada camada tem uma responsabilidade única: o **Controller** recebe a requisição HTTP e devolve a resposta, o **Service** contém a regra de negócio de cada caso de uso, e a **Model** concentra o acesso ao banco (herdando de `db.Model`) e o cálculo de preço do boi.
 
-## Funcionalidades implementadas (backend)
+## Funcionalidades Implementadas
 
-CRUD de Bois:
-
-- Cadastrar um boi, informando raça, categoria, peso, idade e valor da arroba (o preço é calculado automaticamente);
-- Listar todos os bois cadastrados;
-- Buscar um boi pelo id;
-- Atualizar os dados de um boi (o preço estimado é recalculado quando peso ou valor da arroba mudam);
-- Excluir um boi.
+1. **Calcular valor do boi** – Calcula automaticamente o preço estimado com base no peso (kg) e valor da arroba na praça.
+2. **Cadastrar avaliação** – Salva uma nova avaliação de boi no banco de dados, com cálculo automático do preço.
+3. **Listar avaliações** – Exibe todas as avaliações de bois cadastradas no sistema.
+4. **Consultar avaliação** – Exibe os detalhes de uma avaliação específica pelo ID.
+5. **Editar avaliação** – Altera peso, raça, categoria, idade ou valor da arroba e recalcula o preço automaticamente.
+6. **Excluir avaliação** – Remove uma avaliação do banco de dados.
+7. **Filtrar por raça** – Encontra avaliações de determinada raça (busca parcial, case-insensitive).
+8. **Filtrar por categoria** – Filtra avaliações por categoria (ex: Boi Gordo, Novilho, Garrote).
+9. **Filtrar por faixa de peso** – Filtra avaliações dentro de uma faixa de peso específica (peso mínimo e/ou máximo).
+10. **Gerar resumo das avaliações** – Gera estatísticas gerais: total de avaliações, peso médio, valor médio da arroba, preço médio, menor/maior preço, e totais por categoria e raça.
 
 ### Como o preço é calculado
 
@@ -145,10 +148,15 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
 | POST | `/bois` | Cadastra um boi e calcula o preço estimado |
 | PUT | `/bois/<id>` | Atualiza um boi e recalcula o preço quando necessário |
 | DELETE | `/bois/<id>` | Remove um boi |
+| GET | `/bois/filtrar` | Filtra por raça, categoria e/ou faixa de peso |
+| GET | `/bois/resumo` | Gera resumo estatístico das avaliações |
 
-## Exemplo de JSON para cadastrar
+## Exemplos de Requisições
+
+### Cadastrar avaliação
 
 ```json
+POST /bois
 {
   "raca": "Nelore",
   "categoria": "Boi Gordo",
@@ -158,7 +166,39 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
 }
 ```
 
-## Resposta esperada
+### Filtrar por raça
+
+```text
+GET /bois/filtrar?raca=Nelore
+```
+
+### Filtrar por categoria
+
+```text
+GET /bois/filtrar?categoria=Boi Gordo
+```
+
+### Filtrar por faixa de peso
+
+```text
+GET /bois/filtrar?peso_min=400&peso_max=500
+```
+
+### Filtrar combinando parâmetros
+
+```text
+GET /bois/filtrar?raca=Nelore&categoria=Boi Gordo&peso_min=400&peso_max=600
+```
+
+### Gerar resumo
+
+```text
+GET /bois/resumo
+```
+
+## Respostas Esperadas
+
+### Cadastrar/Listar/Consultar boi
 
 ```json
 {
@@ -170,6 +210,62 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
   "valor_arroba": 300.0,
   "preco_estimado": 9600.0,
   "data_avaliacao": "2026-07-01T12:00:00"
+}
+```
+
+### Filtrar bois
+
+```json
+{
+  "total": 2,
+  "filtros_aplicados": {
+    "raca": "Nelore",
+    "categoria": null,
+    "peso_min": null,
+    "peso_max": null
+  },
+  "resultados": [
+    {
+      "id": 1,
+      "raca": "Nelore",
+      "categoria": "Boi Gordo",
+      "peso_kg": 480,
+      "idade_meses": 36,
+      "valor_arroba": 300.0,
+      "preco_estimado": 9600.0,
+      "data_avaliacao": "2026-07-01T12:00:00"
+    }
+  ]
+}
+```
+
+### Resumo das avaliações
+
+```json
+{
+  "total_avaliacoes": 5,
+  "peso_medio": 420.5,
+  "valor_arroba_medio": 295.0,
+  "preco_medio": 8280.0,
+  "menor_preco": 5200.0,
+  "maior_preco": 11200.0,
+  "valor_total": 41400.0,
+  "por_categoria": [
+    {
+      "categoria": "Boi Gordo",
+      "quantidade": 3,
+      "peso_medio": 480.0,
+      "preco_medio": 9600.0
+    }
+  ],
+  "por_raca": [
+    {
+      "raca": "Nelore",
+      "quantidade": 3,
+      "peso_medio": 450.0,
+      "preco_medio": 9000.0
+    }
+  ]
 }
 ```
 

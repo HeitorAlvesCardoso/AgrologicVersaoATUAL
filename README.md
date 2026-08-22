@@ -291,6 +291,34 @@ GET /bois/resumo
 }
 ```
 
-## Status atual do projeto
+## Como executar o frontend
 
-Esta etapa cobre apenas o backend: models, controllers, services, repositories e persistência no banco. A camada de frontend (telas de cadastro, listagem, edição e exclusão consumindo essas rotas) faz parte da próxima etapa do trabalho.
+Entre na pasta do frontend:
+
+```bash
+cd frontend
+```
+
+Instale as dependências (precisa ter o [Node.js](https://nodejs.org) instalado):
+
+```bash
+npm install
+```
+
+Execute o servidor de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+O frontend ficará disponível em:
+
+```text
+http://localhost:5173
+```
+
+> O backend precisa estar rodando (`python app.py` em outro terminal) para o frontend funcionar.
+
+## Status do projeto
+
+Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 10 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros e resumo estatístico.

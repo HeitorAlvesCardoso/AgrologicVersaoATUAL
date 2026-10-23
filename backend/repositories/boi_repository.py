@@ -38,6 +38,64 @@ class BoiRepository:
 
         return query.order_by(Boi.peso_kg.asc()).all()
 
+    # ── Pesquisa e gerenciamento ──
+
+    @staticmethod
+    def buscar_por_nome(nome):
+        """Busca avaliações pelo nome do animal (busca parcial, case-insensitive)."""
+        return Boi.query.filter(
+            Boi.nome.ilike(f"%{nome}%")
+        ).order_by(Boi.id.asc()).all()
+
+    @staticmethod
+    def filtrar_por_preco_minimo(preco_min):
+        """Filtra avaliações com preço estimado igual ou superior ao informado."""
+        return Boi.query.filter(
+            Boi.preco_estimado >= preco_min
+        ).order_by(Boi.preco_estimado.asc()).all()
+
+    @staticmethod
+    def filtrar_por_preco_maximo(preco_max):
+        """Filtra avaliações com preço estimado igual ou inferior ao informado."""
+        return Boi.query.filter(
+            Boi.preco_estimado <= preco_max
+        ).order_by(Boi.preco_estimado.desc()).all()
+
+    @staticmethod
+    def filtrar_por_periodo(inicio=None, fim=None):
+        """Filtra avaliações realizadas em um período (AAAA-MM-DD)."""
+        query = Boi.query
+
+        if inicio:
+            query = query.filter(func.date(Boi.data_avaliacao) >= inicio)
+        if fim:
+            query = query.filter(func.date(Boi.data_avaliacao) <= fim)
+
+        return query.order_by(Boi.data_avaliacao.desc()).all()
+
+    @staticmethod
+    def listar_recentes(limite=None):
+        """Lista as avaliações cadastradas mais recentemente primeiro."""
+        query = Boi.query.order_by(
+            Boi.data_avaliacao.desc(), Boi.id.desc()
+        )
+
+        if limite:
+            query = query.limit(limite)
+
+        return query.all()
+
+    @staticmethod
+    def paginar(pagina, por_pagina):
+        """Divide a listagem em páginas e retorna os itens e o total."""
+        total = Boi.query.count()
+
+        itens = Boi.query.order_by(Boi.id.desc()).offset(
+            (pagina - 1) * por_pagina
+        ).limit(por_pagina).all()
+
+        return itens, total
+
     # ── Relatórios ──
 
     @staticmethod

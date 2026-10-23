@@ -36,6 +36,12 @@ def create_app():
                 "filtrar_por_raca": "GET /bois/filtrar/raca?raca=...",
                 "filtrar_por_categoria": "GET /bois/filtrar/categoria?categoria=...",
                 "filtrar_por_peso": "GET /bois/filtrar/peso?peso_min=...&peso_max=...",
+                "buscar_por_nome": "GET /bois/buscar?nome=...",
+                "filtrar_por_preco_minimo": "GET /bois/filtrar/preco-minimo?preco_min=...",
+                "filtrar_por_preco_maximo": "GET /bois/filtrar/preco-maximo?preco_max=...",
+                "filtrar_por_data": "GET /bois/filtrar/data?data_inicio=...&data_fim=...",
+                "avaliacoes_recentes": "GET /bois/recentes?limite=...",
+                "paginar_bois": "GET /bois/paginar?pagina=...&por_pagina=...",
                 "gerar_resumo": "GET /bois/resumo",
             }
         })

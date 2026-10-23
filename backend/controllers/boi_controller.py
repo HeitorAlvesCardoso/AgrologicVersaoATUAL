@@ -11,6 +11,12 @@ from services.filtrar_por_raca_service import FiltrarPorRacaService
 from services.filtrar_por_categoria_service import FiltrarPorCategoriaService
 from services.filtrar_por_faixa_peso_service import FiltrarPorFaixaPesoService
 from services.gerar_resumo_service import GerarResumoService
+from services.buscar_boi_por_nome_service import BuscarBoiPorNomeService
+from services.filtrar_por_preco_minimo_service import FiltrarPorPrecoMinimoService
+from services.filtrar_por_preco_maximo_service import FiltrarPorPrecoMaximoService
+from services.filtrar_por_data_service import FiltrarPorDataService
+from services.listar_avaliacoes_recentes_service import ListarAvaliacoesRecentesService
+from services.paginar_bois_service import PaginarBoisService
 from models.database import db
 
 
@@ -197,7 +203,141 @@ class BoiController:
                 db.session.rollback()
                 return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
 
-        # ── Resumo ────────────────────────────────────────────────────────
+        # ── Pesquisa e gerenciamento ────────────────────────────────────────────────────────
+
+        @bp.get("/bois/buscar")
+        def buscar_avaliacao_por_nome():
+            """Busca avaliações pelo nome do animal (item 11)."""
+            try:
+                nome = request.args.get("nome")
+                if not nome:
+                    return jsonify({"erro": "O parâmetro 'nome' é obrigatório."}), 400
+
+                service = BuscarBoiPorNomeService()
+                bois = service.executar(nome)
+
+                return jsonify({
+                    "total": len(bois),
+                    "filtro": {"nome": nome},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao buscar avaliações no banco de dados."}), 500
+
+        @bp.get("/bois/filtrar/preco-minimo")
+        def filtrar_por_preco_minimo():
+            """Filtra avaliações com preço estimado mínimo (item 13)."""
+            try:
+                preco_min = request.args.get("preco_min", type=float)
+
+                service = FiltrarPorPrecoMinimoService()
+                bois = service.executar(preco_min)
+
+                return jsonify({
+                    "total": len(bois),
+                    "filtro": {"preco_min": preco_min},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
+
+        @bp.get("/bois/filtrar/preco-maximo")
+        def filtrar_por_preco_maximo():
+            """Filtra avaliações com preço estimado máximo (item 14)."""
+            try:
+                preco_max = request.args.get("preco_max", type=float)
+
+                service = FiltrarPorPrecoMaximoService()
+                bois = service.executar(preco_max)
+
+                return jsonify({
+                    "total": len(bois),
+                    "filtro": {"preco_max": preco_max},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
+
+        @bp.get("/bois/filtrar/data")
+        def filtrar_por_data():
+            """Filtra avaliações por período de cadastro (item 15)."""
+            try:
+                data_inicio = request.args.get("data_inicio")
+                data_fim = request.args.get("data_fim")
+
+                service = FiltrarPorDataService()
+                bois = service.executar(data_inicio, data_fim)
+
+                return jsonify({
+                    "total": len(bois),
+                    "filtro": {"data_inicio": data_inicio, "data_fim": data_fim},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
+
+        @bp.get("/bois/recentes")
+        def listar_avaliacoes_recentes():
+            """Lista as avaliações mais recentes primeiro (item 16)."""
+            try:
+                limite = request.args.get("limite", type=int)
+
+                service = ListarAvaliacoesRecentesService()
+                bois = service.executar(limite)
+
+                return jsonify({
+                    "total": len(bois),
+                    "filtro": {"limite": limite},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao listar avaliações no banco de dados."}), 500
+
+        @bp.get("/bois/paginar")
+        def paginar_bois():
+            """Divide a listagem de avaliações em páginas (item 17)."""
+            try:
+                pagina = request.args.get("pagina", default=1, type=int)
+                por_pagina = request.args.get("por_pagina", default=10, type=int)
+
+                service = PaginarBoisService()
+                pagina_dados = service.executar(pagina, por_pagina)
+
+                return jsonify(pagina_dados), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao paginar bois no banco de dados."}), 500
+
+        # ── Resumo ────────────────────────────────────────────────────
 
         @bp.get("/bois/resumo")
         def gerar_resumo():

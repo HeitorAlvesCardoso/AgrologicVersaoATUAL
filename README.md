@@ -25,6 +25,12 @@ AgroLogic1/
     │   ├── filtrar_por_raca_service.py
     │   ├── filtrar_por_categoria_service.py
     │   ├── filtrar_por_faixa_peso_service.py
+    │   ├── buscar_boi_por_nome_service.py
+    │   ├── filtrar_por_preco_minimo_service.py
+    │   ├── filtrar_por_preco_maximo_service.py
+    │   ├── filtrar_por_data_service.py
+    │   ├── listar_avaliacoes_recentes_service.py
+    │   ├── paginar_bois_service.py
     │   └── gerar_resumo_service.py
     ├── repositories/
     │   └── boi_repository.py
@@ -68,6 +74,13 @@ Cada camada tem uma responsabilidade única:
 8. **Filtrar por categoria** – Filtra avaliações por categoria (ex: Boi Gordo, Novilho, Garrote).
 9. **Filtrar por faixa de peso** – Filtra avaliações dentro de uma faixa de peso específica (peso mínimo e/ou máximo).
 10. **Gerar resumo das avaliações** – Gera estatísticas gerais: total de avaliações, peso médio, valor médio da arroba, preço médio, menor/maior preço, e totais por categoria e raça.
+11. **Buscar avaliação pelo nome** – Localiza avaliações utilizando o nome cadastrado do animal (busca parcial, case-insensitive).
+12. **Filtrar por preço mínimo** – Apresenta avaliações cujo preço estimado é igual ou superior ao valor informado.
+13. **Filtrar por preço máximo** – Apresenta avaliações cujo preço estimado é igual ou inferior ao valor informado.
+14. **Filtrar por data de cadastro** – Consulta avaliações realizadas em um determinado período (data inicial e/ou final).
+15. **Mostrar avaliações recentes** – Exibe primeiro as avaliações cadastradas mais recentemente, com limite opcional.
+16. **Paginar os resultados** – Divide a listagem em páginas para navegar entre grandes quantidades de registros.
+17. **Validar campos obrigatórios** – Verifica se os campos necessários foram preenchidos corretamente antes de cadastrar ou atualizar uma avaliação, retornando mensagens de erro claras.
 
 ### Como o preço é calculado
 
@@ -169,6 +182,12 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
 | GET | `/bois/filtrar/raca?raca=...` | Filtra por raça |
 | GET | `/bois/filtrar/categoria?categoria=...` | Filtra por categoria |
 | GET | `/bois/filtrar/peso?peso_min=...&peso_max=...` | Filtra por faixa de peso |
+| GET | `/bois/buscar?nome=...` | Busca avaliações pelo nome do animal |
+| GET | `/bois/filtrar/preco-minimo?preco_min=...` | Filtra por preço estimado mínimo |
+| GET | `/bois/filtrar/preco-maximo?preco_max=...` | Filtra por preço estimado máximo |
+| GET | `/bois/filtrar/data?data_inicio=...&data_fim=...` | Filtra por período de data de cadastro |
+| GET | `/bois/recentes?limite=...` | Lista as avaliações mais recentes primeiro |
+| GET | `/bois/paginar?pagina=...&por_pagina=...` | Pagina os resultados da listagem |
 | GET | `/bois/resumo` | Gera resumo estatístico das avaliações |
 
 ## Exemplos de Requisições
@@ -321,4 +340,4 @@ http://localhost:5173
 
 ## Status do projeto
 
-Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 10 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros e resumo estatístico.
+Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 16 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros, pesquisa, paginação e resumo estatístico.

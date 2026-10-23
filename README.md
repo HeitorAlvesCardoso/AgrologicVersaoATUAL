@@ -9,6 +9,8 @@ O AgroLogic nasce para resolver esse problema: uma calculadora que estima o pre�
 ```text
 AgroLogic1/
 ├── frontend/
+├── docs/
+│   └── diagrama-de-classes.md
 └── backend/
     ├── app.py
     ├── requirements.txt
@@ -64,6 +66,18 @@ Cada camada tem uma responsabilidade única:
 - **Service** contém a regra de negócio de cada caso de uso (cálculo de preço, filtros, resumo).
 - **Model** concentra o CRUD básico (salvar, listar, buscar, atualizar, deletar).
 - **Repository** é usado para consultas especiais que vão além do CRUD simples (filtros, relatórios).
+
+## Diagrama de classes
+
+O diagrama de classes do domínio está em [`docs/diagrama-de-classes.md`](docs/diagrama-de-classes.md).
+
+Ele apresenta:
+
+- a entidade **`Boi`** com todos os atributos e operações de CRUD, herdando de `db.Model` (herança);
+- o relacionamento entre as camadas **Controller → Service → Model / Repository → Banco de Dados**;
+- a regra de responsabilidade de cada classe, coerente com a arquitetura trabalhada em aula.
+
+O diagrama usa a sintaxe [Mermaid](https://mermaid.js.org/) — é renderizado automaticamente pelo GitHub ao abrir o arquivo.
 
 ## Funcionalidades Implementadas
 

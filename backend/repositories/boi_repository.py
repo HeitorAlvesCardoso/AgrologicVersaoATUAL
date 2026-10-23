@@ -38,6 +38,24 @@ class BoiRepository:
 
         return query.order_by(Boi.peso_kg.asc()).all()
 
+    # ── Ordenações ──
+
+    @staticmethod
+    def ordenar_por_preco_crescente():
+        """Retorna as avaliações do menor para o maior preço estimado."""
+        return Boi.query.order_by(Boi.preco_estimado.asc()).all()
+
+    @staticmethod
+    def ordenar_por_preco_decrescente():
+        """Retorna as avaliações do maior para o menor preço estimado."""
+        return Boi.query.order_by(Boi.preco_estimado.desc()).all()
+
+    @staticmethod
+    def ordenar_por_peso(direcao="asc"):
+        """Retorna as avaliações ordenadas por peso (asc ou desc)."""
+        coluna = Boi.peso_kg.asc() if direcao == "asc" else Boi.peso_kg.desc()
+        return Boi.query.order_by(coluna).all()
+
     # ── Pesquisa e gerenciamento ──
 
     @staticmethod

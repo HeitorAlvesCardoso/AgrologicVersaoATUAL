@@ -42,6 +42,9 @@ def create_app():
                 "filtrar_por_data": "GET /bois/filtrar/data?data_inicio=...&data_fim=...",
                 "avaliacoes_recentes": "GET /bois/recentes?limite=...",
                 "paginar_bois": "GET /bois/paginar?pagina=...&por_pagina=...",
+                "ordenar_preco_crescente": "GET /bois/ordenar/preco-crescente",
+                "ordenar_preco_decrescente": "GET /bois/ordenar/preco-decrescente",
+                "ordenar_por_peso": "GET /bois/ordenar/peso?direcao=asc|desc",
                 "gerar_resumo": "GET /bois/resumo",
             }
         })

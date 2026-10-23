@@ -31,6 +31,9 @@ AgroLogic1/
     │   ├── filtrar_por_data_service.py
     │   ├── listar_avaliacoes_recentes_service.py
     │   ├── paginar_bois_service.py
+    │   ├── ordenar_por_preco_crescente_service.py
+    │   ├── ordenar_por_preco_decrescente_service.py
+    │   ├── ordenar_por_peso_service.py
     │   └── gerar_resumo_service.py
     ├── repositories/
     │   └── boi_repository.py
@@ -81,6 +84,9 @@ Cada camada tem uma responsabilidade única:
 15. **Mostrar avaliações recentes** – Exibe primeiro as avaliações cadastradas mais recentemente, com limite opcional.
 16. **Paginar os resultados** – Divide a listagem em páginas para navegar entre grandes quantidades de registros.
 17. **Validar campos obrigatórios** – Verifica se os campos necessários foram preenchidos corretamente antes de cadastrar ou atualizar uma avaliação, retornando mensagens de erro claras.
+18. **Ordenar por preço crescente** – Exibe as avaliações começando pelo menor preço estimado.
+19. **Ordenar por preço decrescente** – Exibe as avaliações começando pelo maior preço estimado.
+20. **Ordenar por peso** – Organiza os animais do mais leve ao mais pesado, ou vice-versa (parâmetro `direcao=asc|desc`).
 
 ### Como o preço é calculado
 
@@ -188,6 +194,9 @@ DATABASE_URL=mysql+pymysql://root:sua_senha@localhost:3306/agrologic
 | GET | `/bois/filtrar/data?data_inicio=...&data_fim=...` | Filtra por período de data de cadastro |
 | GET | `/bois/recentes?limite=...` | Lista as avaliações mais recentes primeiro |
 | GET | `/bois/paginar?pagina=...&por_pagina=...` | Pagina os resultados da listagem |
+| GET | `/bois/ordenar/preco-crescente` | Ordena do menor para o maior preço |
+| GET | `/bois/ordenar/preco-decrescente` | Ordena do maior para o menor preço |
+| GET | `/bois/ordenar/peso?direcao=asc\|desc` | Ordena do mais leve ao mais pesado (ou vice-versa) |
 | GET | `/bois/resumo` | Gera resumo estatístico das avaliações |
 
 ## Exemplos de Requisições
@@ -340,4 +349,4 @@ http://localhost:5173
 
 ## Status do projeto
 
-Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 16 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros, pesquisa, paginação e resumo estatístico.
+Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 19 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros, pesquisa, paginação, ordenações e resumo estatístico.

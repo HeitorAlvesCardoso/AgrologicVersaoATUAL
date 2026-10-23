@@ -17,6 +17,9 @@ from services.filtrar_por_preco_maximo_service import FiltrarPorPrecoMaximoServi
 from services.filtrar_por_data_service import FiltrarPorDataService
 from services.listar_avaliacoes_recentes_service import ListarAvaliacoesRecentesService
 from services.paginar_bois_service import PaginarBoisService
+from services.ordenar_por_preco_crescente_service import OrdenarPorPrecoCrescenteService
+from services.ordenar_por_preco_decrescente_service import OrdenarPorPrecoDecrescenteService
+from services.ordenar_por_peso_service import OrdenarPorPesoService
 from models.database import db
 
 
@@ -202,6 +205,64 @@ class BoiController:
             except SQLAlchemyError:
                 db.session.rollback()
                 return jsonify({"erro": "Erro ao filtrar bois no banco de dados."}), 500
+
+        # ── Ordenações ────────────────────────────────────────────────────
+
+        @bp.get("/bois/ordenar/preco-crescente")
+        def ordenar_por_preco_crescente():
+            """Exibe as avaliações começando pelo menor preço (item 1)."""
+            try:
+                service = OrdenarPorPrecoCrescenteService()
+                bois = service.executar()
+
+                return jsonify({
+                    "total": len(bois),
+                    "ordenacao": {"campo": "preco_estimado", "direcao": "crescente"},
+                    "resultados": bois,
+                }), 200
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao ordenar avaliações no banco de dados."}), 500
+
+        @bp.get("/bois/ordenar/preco-decrescente")
+        def ordenar_por_preco_decrescente():
+            """Exibe as avaliações começando pelo maior preço (item 2)."""
+            try:
+                service = OrdenarPorPrecoDecrescenteService()
+                bois = service.executar()
+
+                return jsonify({
+                    "total": len(bois),
+                    "ordenacao": {"campo": "preco_estimado", "direcao": "decrescente"},
+                    "resultados": bois,
+                }), 200
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao ordenar avaliações no banco de dados."}), 500
+
+        @bp.get("/bois/ordenar/peso")
+        def ordenar_por_peso():
+            """Organiza os animais do mais leve ao mais pesado (item 3)."""
+            try:
+                direcao = request.args.get("direcao", "asc")
+
+                service = OrdenarPorPesoService()
+                bois = service.executar(direcao)
+
+                return jsonify({
+                    "total": len(bois),
+                    "ordenacao": {"campo": "peso_kg", "direcao": direcao},
+                    "resultados": bois,
+                }), 200
+
+            except ValueError as erro:
+                return jsonify({"erro": str(erro)}), 400
+
+            except SQLAlchemyError:
+                db.session.rollback()
+                return jsonify({"erro": "Erro ao ordenar avaliações no banco de dados."}), 500
 
         # ── Pesquisa e gerenciamento ────────────────────────────────────────────────────────
 

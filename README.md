@@ -375,7 +375,7 @@ Endereço do site: `https://heitoralvescardoso.github.io/AgrologicVersaoATUAL/`
 
 Na primeira publicação, é preciso ativar o Pages no repositório: **Settings → Pages → Source: GitHub Actions**.
 
-> O GitHub Pages hospeda apenas o site estático. As chamadas de API saem de `agrologic-pages/app.js` apontando para `http://127.0.0.1:5000`, então os dados só funcionam com o backend rodando localmente. Para a versão online funcionar de ponta a ponta, o backend precisa estar hospedado em um serviço de nuvem e a `API_URL` ajustada para esse endereço.
+> O GitHub Pages hospeda apenas o site estático. O frontend usa caminhos de API relativos (`/bois/...`) e, em desenvolvimento, o Vite os encaminha via proxy para o backend em `http://127.0.0.1:5000`. No Pages não existe esse proxy, então a interface carrega, mas os dados só aparecem com o backend hospedado — nesse caso, ajuste a `API_URL` em `agrologic-pages/app.js` para o endereço da API na nuvem.
 
 ## Status do projeto
 

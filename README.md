@@ -9,6 +9,10 @@ O AgroLogic nasce para resolver esse problema: uma calculadora que estima o pre�
 ```text
 AgroLogic1/
 ├── frontend/
+├── agrologic-pages/          # cópia do front publicada no GitHub Pages
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml  # publica o site a cada push
 ├── docs/
 │   └── diagrama-de-classes.md
 └── backend/
@@ -361,6 +365,18 @@ http://localhost:5173
 
 > O backend precisa estar rodando (`python app.py` em outro terminal) para o frontend funcionar.
 
+## Como publicar o site (GitHub Pages)
+
+O site estático publicado fica na pasta `agrologic-pages/` (cópia do `frontend/`, com o `base` do Vite ajustado para `/AgrologicVersaoATUAL/`).
+
+A cada push na branch `main`, o workflow [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml) instala as dependências, gera o build (`npm run build`) e publica o site automaticamente no GitHub Pages.
+
+Endereço do site: `https://heitoralvescardoso.github.io/AgrologicVersaoATUAL/`
+
+Na primeira publicação, é preciso ativar o Pages no repositório: **Settings → Pages → Source: GitHub Actions**.
+
+> O GitHub Pages hospeda apenas o site estático. As chamadas de API saem de `agrologic-pages/app.js` apontando para `http://127.0.0.1:5000`, então os dados só funcionam com o backend rodando localmente. Para a versão online funcionar de ponta a ponta, o backend precisa estar hospedado em um serviço de nuvem e a `API_URL` ajustada para esse endereço.
+
 ## Status do projeto
 
-Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 19 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros, pesquisa, paginação, ordenações e resumo estatístico.
+Projeto completo com backend (Flask) e frontend (Vite + vanilla JS). O backend expõe 19 rotas REST e o frontend consome todas elas, oferecendo dashboard, calculadora, CRUD de avaliações, filtros, pesquisa, paginação, ordenações e resumo estatístico. O site estático é publicado automaticamente no GitHub Pages a cada push na branch `main`.

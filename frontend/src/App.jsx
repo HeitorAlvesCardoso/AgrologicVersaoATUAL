@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 
-const API_URL = 'http://127.0.0.1:5000'
+const API_URL = ''
 const emptyForm = { raca: '', categoria: '', peso_kg: '', idade_meses: '', valor_arroba: '' }
 const currency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0))
 

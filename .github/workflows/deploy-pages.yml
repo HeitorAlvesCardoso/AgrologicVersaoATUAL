@@ -38,6 +38,9 @@ jobs:
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
+        with:
+          # Ativa o Pages automaticamente se ainda não estiver ativado
+          enablement: true
 
       - name: Enviar o build como artefato
         uses: actions/upload-pages-artifact@v3

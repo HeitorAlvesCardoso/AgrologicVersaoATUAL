@@ -67,7 +67,7 @@ classDiagram
         +gerar_resumo()
     }
 
-    class Service~17 classes~ {
+    class Service~19 classes~ {
         <<um Service por caso de uso>>
         +executar(...)
     }
@@ -114,6 +114,6 @@ classDiagram
 | Classe | Responsabilidade |
 |---|---|
 | `BoiController` | Recebe a requisição HTTP, interpreta os dados e devolve a resposta. **Não** contém regra de negócio. |
-| `Service` (17 classes) | Um caso de uso por classe: valida, coordena e chama a Model ou o Repository. |
+| `Service` (19 classes) | Um caso de uso por classe: valida, coordena e chama a Model ou o Repository. |
 | `Boi` (Model) | Representa a entidade do domínio e concentra o CRUD básico. |
 | `BoiRepository` | Somente consultas especiais: filtros, ordenações, paginação e agregações. Não repete CRUD. |

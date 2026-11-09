@@ -1,3 +1,5 @@
+from sqlalchemy import select, text
+
 from .database import db
 
 
@@ -48,13 +50,17 @@ class Boi(db.Model):
 
     @staticmethod
     def listar_todos():
-        """READ: retorna todos os bois cadastrados."""
-        return Boi.query.order_by(Boi.id.asc()).all()
+        """READ: retorna todos os bois cadastrados (consulta em SQL)."""
+        comando = select(Boi).from_statement(text("SELECT * FROM bois ORDER BY id ASC"))
+        return db.session.execute(comando).scalars().all()
 
     @staticmethod
     def buscar_por_id(boi_id):
-        """READ: busca um boi pelo id."""
-        return Boi.query.get(boi_id)
+        """READ: busca um boi pelo id (consulta em SQL)."""
+        comando = select(Boi).from_statement(
+            text("SELECT * FROM bois WHERE id = :boi_id")
+        )
+        return db.session.execute(comando, {"boi_id": boi_id}).scalars().first()
 
     def to_dict(self):
         """Converte o objeto Boi para dicionário/JSON."""
